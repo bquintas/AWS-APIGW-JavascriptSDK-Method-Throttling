@@ -1,0 +1,92 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Simple API Gateway for programmatic management'
+
+Resources:
+  ApiGateway:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: ProgrammaticAPI
+      Description: API Gateway managed via AWS SDK
+      EndpointConfiguration:
+        Types:
+          - REGIONAL
+
+  RootMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref ApiGateway
+      ResourceId: !GetAtt ApiGateway.RootResourceId
+      HttpMethod: GET
+      AuthorizationType: NONE
+      Integration:
+        Type: MOCK
+        RequestTemplates:
+          application/json: '{"statusCode": 200}'
+        IntegrationResponses:
+          - StatusCode: 200
+            ResponseTemplates:
+              application/json: '{"message": "API Gateway is running"}'
+      MethodResponses:
+        - StatusCode: 200
+
+  ApiGatewayDeployment:
+    Type: AWS::ApiGateway::Deployment
+    DependsOn: RootMethod
+    Properties:
+      RestApiId: !Ref ApiGateway
+      StageName: dev
+
+  UsagePlan:
+    Type: AWS::ApiGateway::UsagePlan
+    DependsOn: ApiGatewayDeployment
+    Properties:
+      UsagePlanName: DeveloperPlan
+      Description: Usage plan for API throttling
+      ApiStages:
+        - ApiId: !Ref ApiGateway
+          Stage: dev
+      Throttle:
+        BurstLimit: 500
+        RateLimit: 250
+      Quota:
+        Limit: 5000
+        Period: DAY
+
+  ApiKey:
+    Type: AWS::ApiGateway::ApiKey
+    Properties:
+      Name: DeveloperKey
+      Description: API Key for usage plan
+      Enabled: true
+
+  UsagePlanKey:
+    Type: AWS::ApiGateway::UsagePlanKey
+    Properties:
+      KeyId: !Ref ApiKey
+      KeyType: API_KEY
+      UsagePlanId: !Ref UsagePlan
+
+Outputs:
+  ApiGatewayId:
+    Description: API Gateway ID
+    Value: !Ref ApiGateway
+    Export:
+      Name: !Sub "${AWS::StackName}-ApiGatewayId"
+  
+  ApiGatewayRootResourceId:
+    Description: API Gateway Root Resource ID
+    Value: !GetAtt ApiGateway.RootResourceId
+    Export:
+      Name: !Sub "${AWS::StackName}-RootResourceId"
+  
+  UsagePlanId:
+    Description: Usage Plan ID
+    Value: !Ref UsagePlan
+    Export:
+      Name: !Sub "${AWS::StackName}-UsagePlanId"
+  
+  ApiKeyId:
+    Description: API Key ID
+    Value: !Ref ApiKey
+    Export:
+      Name: !Sub "${AWS::StackName}-ApiKeyId"
