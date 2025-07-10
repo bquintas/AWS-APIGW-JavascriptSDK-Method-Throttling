@@ -1,0 +1,17 @@
+{
+  "name": "api-gateway-throttling-manager",
+  "version": "1.0.0",
+  "description": "Manage API Gateway resources and throttling with AWS SDK",
+  "main": "index.js",
+  "scripts": {
+    "deploy": "aws cloudformation deploy --template-file cloudformation/api-gateway.yaml --stack-name api-gateway-stack --capabilities CAPABILITY_IAM",
+    "add-resource": "node scripts/add-resource.js",
+    "set-method-throttling": "node set_throttling.js",
+    "replace-method-throttling": "node replace_throttling.js"
+  },
+  "dependencies": {
+    "@aws-sdk/client-api-gateway": "^3.490.0",
+    "@aws-sdk/client-cloudformation": "^3.490.0",
+    "dotenv": "^16.3.1"
+  }
+}
