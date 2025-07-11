@@ -47,9 +47,15 @@ npm run set-method-throttling
 npm run replace-method-throttling
 ```
 
+**Direct REST API throttling (without SDK):**
+```bash
+npm run rest-api-throttling
+```
+
 ## Key Features
 
 - **CloudFormation deployment** with usage plans and API keys
 - **Method-specific throttling** for individual endpoints
 - **Add/Replace operations** for throttling management
 - **Mock integrations** for testing
+- **Direct REST API calls** demonstrating AWS Signature V4 signing without SDK
